@@ -74,19 +74,17 @@ class MutaElement {
 
     html () {
         let props = '';
+        let content = '';
         for (let [key, value] of Object.entries(this.props)) {
             props += ` ${key}="${value.join(' ')}"`;
         }
-        if (!this.content.length)
-            return `<${this.tag}${props}/>`;
-        let content = '';
         for (let item of this.content) {
             if (typeof item === 'string')
                 content += item;
             else
                 content += item.html();
         }
-        return `<${this.tag}${props}>${content}</>`;
+        return `<${this.tag}${props}>${content}</${this.tag}>`;
     }
 }
 
