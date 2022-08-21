@@ -1,13 +1,11 @@
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
-
 class MutaElement {
     tag;
     props = {};
     content = [];
 
-    constructor (constructor) {
+    constructor(constructor) {
         this.tag = constructor.tag;
         if (Object.prototype.hasOwnProperty.call(constructor, 'props'))
             this.setp(constructor.props);
@@ -15,26 +13,26 @@ class MutaElement {
             this.setc(constructor.content);
     }
 
-    gett () {
+    gett() {
         return this.tag;
     }
 
-    sett (tag) {
+    sett(tag) {
         this.tag = tag;
     }
 
-    getc () {
+    getc() {
         return this.content;
     }
 
-    setc (content) {
+    setc(content) {
         if (content?.constructor !== Array)
             this.content = [content];
         else
             this.content = content;
     }
 
-    addc (content) {
+    addc(content) {
         if (!this.content.length)
             this.content = [];
         if (content?.constructor !== Array)
@@ -43,11 +41,11 @@ class MutaElement {
             this.content.concat(content);
     }
 
-    getp () {
+    getp() {
         return this.props;
     }
 
-    setp (props, root = false) {
+    setp(props, root = false) {
         if (root)
             this.props = [];
         for (let [key, value] of Object.entries(props)) {
@@ -58,21 +56,25 @@ class MutaElement {
         }
     }
 
-    addp (props) {
+    addp(props) {
         for (let [key, value] of Object.entries(props)) {
             if (Object.prototype.hasOwnProperty.call(this.props, key))
                 if (value?.constructor === Array)
-                    this.props.concat(value);
+                    this.props[key].concat(value);
                 else {
                     console.log(this.props[key]);
                     this.props[key].push(value);
                 }
             else
-                this.props[key] = [value];
+                if (value?.constructor === Array)
+                    this.props[key] = value;
+                else {
+                    this.props[key] = [value];
+                }
         }
     }
 
-    html () {
+    html() {
         let props = '';
         let content = '';
         for (let [key, value] of Object.entries(this.props)) {
@@ -89,26 +91,43 @@ class MutaElement {
 }
 
 class MutaDOM {
-    crel (params) {
+    crel(params) {
         return new MutaElement(params);
     }
 
-    render (element, content) {
-        if (element?.constructor === HTMLElement) {
+    ren(element, content) {
+        if (element?.innerHTML !== undefined) {
             if (typeof content === 'string')
                 element.innerHTML = content;
             else if (content?.constructor === MutaElement)
                 element.innerHTML = content.html();
+            else throw new Error('unable to render')
         }
-        else if (Object.prototype.hasOwnProperty.call(element, 'on')) {
+        else if (element?.html !== undefined && element?.constructor !== MutaElement) {
             if (typeof content === 'string')
                 element.html(content);
             else if (content?.constructor === MutaElement)
                 element.html(content.html());
+            else throw new Error('unable to render')
         }
-        else
-            throw new Error('could not render');
+        else throw new Error('unable to render')
+    }
+
+    app(element, content) {
+        if (element?.innerHTML !== undefined) {
+            if (typeof content === 'string')
+                element.innerHTML += content;
+            else if (content?.constructor === MutaElement)
+                element.innerHTML += content.html();
+            else throw new Error('unable to append')
+        }
+        else if (element?.html !== undefined && element?.constructor !== MutaElement) {
+            if (typeof content === 'string')
+                element.append(content);
+            else if (content?.constructor === MutaElement)
+                element.append(content.html());
+            else throw new Error('unable to append')
+        }
+        else throw new Error('unable to append')
     }
 }
-
-exports.default = MutaDOM;
